@@ -1,0 +1,64 @@
+import sys
+import config
+from App import controller
+from DISClib.ADT import stack
+import timeit
+
+file='\\taxi-trips-wrvz-psew-subset-small.csv'
+
+#===================
+#Menus
+#===================
+
+def menu():
+    print('\n')
+    print('='*50)
+    print('Bienvenidos.')
+    print('1- Iniciar analizador.')
+    print('2- Cargar datos.')
+    print('3- Imformacion de compañias.')
+
+def submenuone():
+    print('\n')
+    print('\nTop de las primeras N compañias con respecto a la cantidad de taxis.')
+    print('\nTop de las primeras N compañias con respecto a la cantidad de viajes realizados.')
+#===================
+#Funciones
+#===================
+
+def Optionone():
+    return controller.init()
+
+def Optiontwo(analyzer, file):
+    controller.loadFile(cont, file)
+
+def optionthree(analyzer):
+    estadisticas=analyzer['global']
+    print('\nHay un total de: ' + str(estadisticas['companies']) + ' compañias de taxis.')
+    print('\nHay un total de: ' + str(estadisticas['taxis'])+ ' taxis.')
+    N=int(input('\nIndique el numero de compañias que entran en el top que desea realizar.'))
+    mapa=cont['name']
+    cadenas=controller.topcompanies(N, mapa, 'rides')
+    for cadena in cadenas:
+        print(cadenas[cadena])
+
+"""
+Menu principal
+"""
+
+while True:
+    menu()
+    inputs=input('Selecione una opcion:\n>')
+    if inputs == '1':
+        cont=Optionone()
+
+    elif inputs == '2':
+        Optiontwo(cont, file)
+
+    elif inputs == '3':
+        optionthree(cont)
+
+    elif inputs == '0':
+        sys.exit(0)
+
+sys.exit(0)
