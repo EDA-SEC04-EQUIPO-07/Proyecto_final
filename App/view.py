@@ -73,5 +73,8 @@ while True:
 
     elif inputs == '0':
         sys.exit(0)
+    
+    else:
+        print('\nSeleción invalida.')
 
 sys.exit(0)
