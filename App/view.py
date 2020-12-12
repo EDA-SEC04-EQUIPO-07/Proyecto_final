@@ -17,11 +17,8 @@ def menu():
     print('1- Iniciar analizador.')
     print('2- Cargar datos.')
     print('3- Imformacion de compañias.')
+    print('5- Programar viaje.')
 
-def submenuone():
-    print('\n')
-    print('\nTop de las primeras N compañias con respecto a la cantidad de taxis.')
-    print('\nTop de las primeras N compañias con respecto a la cantidad de viajes realizados.')
 #===================
 #Funciones
 #===================
@@ -31,6 +28,7 @@ def Optionone():
 
 def Optiontwo(analyzer, file):
     controller.loadFile(cont, file)
+
 
 def optionthree(analyzer):
     estadisticas=analyzer['global']
@@ -55,6 +53,10 @@ def optionthree(analyzer):
         number=info['Number']
         print(str(i)+'- Compañia: '+ name+ ' total taxis: '+ str(number))
 
+def optionfive(analyzer):
+    path=controller.setride('58', '77', '13:00', '15:00', analyzer)
+    print(path)
+
 """
 Menu principal
 """
@@ -70,6 +72,9 @@ while True:
 
     elif inputs == '3':
         optionthree(cont)
+    
+    elif inputs == '5':
+        optionfive(cont)
 
     elif inputs == '0':
         sys.exit(0)

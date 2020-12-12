@@ -28,7 +28,7 @@ def newanalizer():
     analyzer['global']['companies']=0
     analyzer['global']['taxis']=0
     analyzer['name']=m.newMap(numelements=50, maptype='PROBING', loadfactor=0.4, comparefunction=cmpids)
-    analyzer['zones']=gr.newGraph(datastructure='ADJ_LIST', directed=True,size=78 ,comparefunction=cmpnumbers)
+    analyzer['zones']=gr.newGraph(datastructure='ADJ_LIST', directed=True,size=78 ,comparefunction=cmpnumbers2)
 
     return analyzer
 
@@ -59,13 +59,16 @@ def loadgraph(trip, analyzer):
     A=trip['pickup_community_area']
     B=trip['dropoff_community_area']
     duration=trip['trip_seconds']
-    time=trip['trip_start_timestamp']
-    time=datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.%f')
-    time=str(time.time())
-    time=time[:5]
-    addzone(A, graph)
-    addzone(B, graph)
-    addconection(A, B, duration, time,graph)
+    if A != '' and B != '' and duration != '':
+        if A != B:
+            duration=int(duration)
+            time=trip['trip_start_timestamp']
+            time=datetime.datetime.strptime(time, '%Y-%m-%dT%H:%M:%S.%f')
+            time=str(time.time())
+            time=time[:5]
+            addzone(A, graph)
+            addzone(B, graph)
+            addconection(A, B, duration, time,graph)
             
 def newvalueC(company, taxi):
     value={'name':company,'taxis':None, 'rides':1}
@@ -87,7 +90,7 @@ def addconection(A, B, duration, time, graph):
         addtime(time, weight, duration)
 
 def newvalueConection(time, duration):
-    value=m.newMap(numelements=24, maptype='PROBING', loadfactor=0.4, comparefunction=cmpnumbers)
+    value=m.newMap(numelements=24, maptype='PROBING', loadfactor=0.4, comparefunction=cmpnumbers2)
     addtime(time, value, duration)
     return value
 
@@ -143,8 +146,10 @@ def TopCompanies(N, mapa, category):
                 i+=1
     return top
 
-def besttime(A, B, hour1, hour2, graph):
+def setride(A, B, hour1, hour2, graph):
     search=dfs.DepthFirstSearch(graph, A)
+    path=dfs.pathTo(search, B)
+    return path
 #======================
 #helper
 #======================
@@ -206,6 +211,15 @@ def cmpnumbers(n1, n2):
         return -1
 
 def cmpnumbersl(n1, n2):
+    if n1 < n2:
+        return 1
+    elif n1==n2:
+        return 0
+    else:
+        return -1
+
+def cmpnumbers2(n1, n2):
+    n2=n2['key']
     if n1 < n2:
         return 1
     elif n1==n2:

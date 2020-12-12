@@ -19,9 +19,15 @@ def loadFile(analyzer, tripfile):
                                 delimiter=",")
     for trip in input_file:
         model.addtrip(trip, analyzer)
+        model.loadgraph(trip, analyzer)
     return analyzer
 
 
 
 def topcompanies(N, mapa, category):
     return model.TopCompanies(N, mapa, category)
+
+def setride(A, B, hour1, hour2, analyzer):
+    graph=analyzer['zones']
+    return model.setride(A, B, hour1, hour2, graph)
+    
