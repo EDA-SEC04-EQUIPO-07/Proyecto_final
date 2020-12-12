@@ -36,11 +36,24 @@ def optionthree(analyzer):
     estadisticas=analyzer['global']
     print('\nHay un total de: ' + str(estadisticas['companies']) + ' compañias de taxis.')
     print('\nHay un total de: ' + str(estadisticas['taxis'])+ ' taxis.')
-    N=int(input('\nIndique el numero de compañias que entran en el top que desea realizar.'))
+    N=int(input('\nIndique el numero de compañias que entran en el top de cantidad de taxis:\n>'))
+    M=int(input('\nIndique el numero de compañias que entran en el top de cantidad de viajes:\n>'))
     mapa=cont['name']
-    cadenas=controller.topcompanies(N, mapa, 'rides')
-    for cadena in cadenas:
-        print(cadenas[cadena])
+    tops=controller.topcompanies(M, mapa, 'rides')
+    tops_2=controller.topcompanies(N, mapa, 'taxis')
+    print('Las ' + str(M)+' con las mayores cantidades de viajes son:\n')
+    for i in tops:
+        info=tops[i]
+        name=info['Name']
+        number=info['Number']
+        print(str(i)+'- Compañia: '+ name+ ' total viajes: '+ str(number))
+    print('\n'+'_'*50)
+    print('\nLas ' + str(M)+' con las mayores cantidades de taxis son:\n')
+    for i in tops_2:
+        info=tops_2[i]
+        name=info['Name']
+        number=info['Number']
+        print(str(i)+'- Compañia: '+ name+ ' total taxis: '+ str(number))
 
 """
 Menu principal

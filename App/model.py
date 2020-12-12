@@ -83,7 +83,6 @@ def TopCompanies(N, mapa, category):
         else:
             verificar=True
             while i in range(1, N+1) and verificar:
-                print('hola')
                 info=top[i]
                 if info['Number'] < number:
                     info['Name']=company
