@@ -28,6 +28,19 @@ def Optionone():
     return controller.init()
 
 def Optiontwo(analyzer, file):
+    file='\\taxi-trips-wrvz-psew-subset-small.csv'
+    print('\nIndique qué archivo desea cargar:\n>')
+    print('1- Archivo small.')
+    print('2- Archivo medium.')
+    print('3- Archivo Large.')
+    ent=input('Selecione una opcion:\n>')
+    if ent == "1":
+        file='\\taxi-trips-wrvz-psew-subset-small.csv'
+    elif ent== "2":
+        file='\\taxi-trips-wrvz-psew-subset-medium.csv'
+    elif ent== "3":
+        file='\\taxi-trips-wrvz-psew-subset-large.csv'
+
     controller.loadFile(cont, file)
 
 
