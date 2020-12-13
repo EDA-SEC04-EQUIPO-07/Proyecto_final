@@ -5,7 +5,6 @@ from DISClib.ADT import stack
 import timeit
 import datetime
 
-file='\\taxi-trips-wrvz-psew-subset-small.csv'
 
 #===================
 #Menus
