@@ -17,7 +17,7 @@ def menu():
     print('Bienvenidos.')
     print('1- Iniciar analizador.')
     print('2- Cargar datos.')
-    print('3- Imformacion de compañias.')
+    print('3- Información de compañías.')
     print('5- Programar viaje.')
 
 #===================
