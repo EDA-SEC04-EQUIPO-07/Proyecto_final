@@ -4,7 +4,7 @@
 
 
 
-import config
+
 from DISClib.ADT.graph import gr
 from DISClib.ADT import map as m
 from DISClib.ADT import list as lt
@@ -12,10 +12,13 @@ from DISClib.DataStructures import listiterator as it
 from DISClib.DataStructures import mapstructure as m 
 from DISClib.DataStructures import mapentry as me
 from DISClib.DataStructures import graphstructure as gr
-from DISClib.Utils import error as error
-from DISClib.Algorithms.Sorting import selectionsort
 from DISClib.Algorithms.Graphs import dfs
+from DISClib.ADT import stack as st
+from DISClib.Utils import error as error
+
+import config
 import datetime
+
 assert config
 
 
@@ -147,9 +150,42 @@ def TopCompanies(N, mapa, category):
     return top
 
 def setride(A, B, hour1, hour2, graph):
-    search=dfs.DepthFirstSearch(graph, A)
-    path=dfs.pathTo(search, B)
-    return path
+    try:
+        search=dfs.DepthFirstSearch(graph, A)
+        if dfs.hasPathTo(search, B):
+            path=dfs.pathTo(search, B)
+            #data
+            hours={}
+            former=None
+            cadena=None
+            while not st.isEmpty(path):
+                vertex=st.pop(path)
+                if former is None:
+                    former=vertex
+                    cadena=str(vertex)
+                else:
+                    cadena+='-->'+str(vertex)
+                    edge=gr.getEdge(graph, former, vertex)
+                    weight=edge['weight']
+                    keys=m.keySet(weight)
+                    iterator=it.newIterator(keys)
+                    while it.hasNext(iterator):
+                        time=it.next(iterator)
+                        if hour1 <= time:
+                            if time <= hour2:
+                                entry=m.get(weight, time)
+                                value=me.getValue(entry)
+                                duration=value['duration']
+                                if time in hours:
+                                    hours[time]+=duration
+                                else:
+                                    hours[time]=duration
+                    former=vertex
+            better=maxdic(hours)
+            return (cadena,better)
+    except:
+        return None
+
 #======================
 #helper
 #======================
@@ -169,7 +205,7 @@ def aproxhour(hour):
         minutes=int(hour[3:])
         if minutes in range(0,8):
             minutes=00
-        elif minutes in range(7,23):
+        elif minutes in range(8,23):
             minutes=15
         elif minutes in range(23,38):
             minutes=30
@@ -183,11 +219,22 @@ def aproxhour(hour):
         if len(minutes) == 1:
             minutes= '0' + minutes
         if len(hours) == 1:
-            minutes= '0' + hours
+            hours= '0' + hours
         hour= hours + ':' +minutes
         return hour
     except:
         return None
+
+def maxdic(dic):
+    higer={'key':None, 'value':None}
+    for key in dic:
+        if higer['key'] is None:
+            higer['key']=key
+            higer['value']=dic[key]
+        elif higer['value'] < dic[key]:
+            higer['key']=key
+            higer['value']=dic[key]
+    return higer
 
 #======================
 #cmpfunctions

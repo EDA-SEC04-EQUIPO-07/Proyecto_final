@@ -3,6 +3,7 @@ import config
 from App import controller
 from DISClib.ADT import stack
 import timeit
+import datetime
 
 file='\\taxi-trips-wrvz-psew-subset-small.csv'
 
@@ -54,8 +55,29 @@ def optionthree(analyzer):
         print(str(i)+'- Compañia: '+ name+ ' total taxis: '+ str(number))
 
 def optionfive(analyzer):
-    path=controller.setride('58', '77', '13:00', '15:00', analyzer)
-    print(path)
+    vertexA=input('\nIngrese la zona de salida:\n>')
+    vertexB=input('\nIngrese la zona de llegada:\n>')
+    hour1=None
+    hour2=None
+    while hour1 is None and hour2 is None:
+        try:
+            print('\nLas hora de inicio y fin deben ser reportadas en el formato: 00:00 (24 horas)')
+            hour1=input('\nIngrese la hora de inicio:\n>')
+            hour2=input('\nIngrese la hora de finalización:\n>')
+            hour1=controller.aproxhour(hour1)
+            hour2=controller.aproxhour(hour2)
+        except:
+            hour1=None
+            hour2=None
+    validar=controller.setride(vertexA, vertexB, hour1, hour2, analyzer)
+    if validar is None:
+        print('\nHa ocurrido un error. Por favor verificar los datos.')
+    else:
+        (cadena, better)=validar
+        duration=round(better['value'],4)
+        print('\nLa ruta a seguir hasta la zona de llegada es:\n' + cadena)
+        print('\nSe calculo que la mejor hora de partida es: '+ better['key'])
+        print('\nEl viaje tiene una duracion de: '+str(duration)+' segundos.')
 
 """
 Menu principal

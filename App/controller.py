@@ -6,6 +6,9 @@ from DISClib.DataStructures import listiterator as it
 from DISClib.DataStructures import liststructure as lt
 import csv
 
+#====================
+#Load
+#====================
 
 def init():
     analyzer=model.newanalizer()
@@ -22,7 +25,9 @@ def loadFile(analyzer, tripfile):
         model.loadgraph(trip, analyzer)
     return analyzer
 
-
+#====================
+#consulta
+#====================
 
 def topcompanies(N, mapa, category):
     return model.TopCompanies(N, mapa, category)
@@ -31,3 +36,9 @@ def setride(A, B, hour1, hour2, analyzer):
     graph=analyzer['zones']
     return model.setride(A, B, hour1, hour2, graph)
     
+#====================
+#Helper
+#====================
+
+def aproxhour(hour):
+    return model.aproxhour(hour)
