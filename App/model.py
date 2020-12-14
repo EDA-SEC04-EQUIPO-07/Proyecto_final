@@ -1,9 +1,28 @@
-
-
-
-
-
-
+"""
+ * Copyright 2020, Departamento de sistemas y Computación
+ * Universidad de Los Andes
+ *
+ *
+ * Desarrolado para el curso ISIS1225 - Estructuras de Datos y Algoritmos
+ *
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Contribución de:
+ *
+ * Dario Correal
+ *
+ """
 
 from DISClib.ADT.graph import gr
 from DISClib.ADT import map as m
@@ -14,6 +33,7 @@ from DISClib.DataStructures import mapentry as me
 from DISClib.DataStructures import graphstructure as gr
 from DISClib.Algorithms.Graphs import dfs
 from DISClib.ADT import stack as st
+from DISClib.DataStructures import orderedmapstructure as om
 from DISClib.Utils import error as error
 
 import config
@@ -21,17 +41,24 @@ import datetime
 
 assert config
 
+"""
+En este archivo definimos los TADs que vamos a usar y las operaciones
+de creacion y consulta sobre las estructuras de datos.
+"""
 
-#======================
-#Estructura
-#======================
+# -----------------------------------------------------
+#                       API
+# -----------------------------------------------------
+
+# Funciones para agregar informacion al grafo
 
 def newanalizer():
-    analyzer={'name':None, 'zones':None ,'global':{}}
+    analyzer={'name':None, 'zones':None ,'infoDate':None ,'global':{}}
     analyzer['global']['companies']=0
     analyzer['global']['taxis']=0
     analyzer['name']=m.newMap(numelements=50, maptype='PROBING', loadfactor=0.4, comparefunction=cmpids)
     analyzer['zones']=gr.newGraph(datastructure='ADJ_LIST', directed=True,size=78 ,comparefunction=cmpnumbers2)
+    analyzer['infoDate']=om.newMap(omaptype='RBT', comparefunction=cmpnumbers)
 
     return analyzer
 
@@ -72,6 +99,38 @@ def loadgraph(trip, analyzer):
             addzone(A, graph)
             addzone(B, graph)
             addconection(A, B, duration, time,graph)
+
+def addDate(trip, analyzer):
+    Mapa= analyzer['infoDate']
+    Date= trip['trip_start_timestamp']
+    Date= datetime.datetime.strptime(Date, '%Y-%m-%dT%H:%M:%S.%f')
+    Date= Date.date()
+    TaxiID= trip['taxi_id']
+    Total= trip['trip_total']
+    Millas= trip['trip_miles']
+    if Millas != "0" and Millas != "":
+        if Total != "0" and Total != "":
+            Total= float(Total)
+            Millas= float(Millas)
+            entry= om.get(Mapa, Date)
+            if entry is None:
+                value= newvalueD(Date, TaxiID, Millas, Total)
+                om.put(Mapa, Date, value)
+            else:    
+                value= me.getValue(entry)
+                Map=value['Taxis']
+                addTaxi(TaxiID, Millas,Total, Map)
+
+def addTaxi(TaxiID, Millas, Total, Mapa):
+    entry= m.get(Mapa, TaxiID)
+    if entry is None:
+        value= newvalueT(TaxiID, Millas, Total)
+        m.put(Mapa, TaxiID, value)
+    else: 
+        value= me.getValue(entry)
+        value['Millas']+= Millas
+        value['Total']+= Total
+        value['Rides']+=1
             
 def newvalueC(company, taxi):
     value={'name':company,'taxis':None, 'rides':1}
@@ -113,9 +172,19 @@ def newvalueH(time, duration):
     value={'time':time, 'duration':duration, 'n':1}
     return value
 
-#======================
-#Consulta
-#======================
+def newvalueD(Date, TaxiID, Millas, Total):
+    value={'Date': Date, 'Taxis': None}
+    value['Taxis']= m.newMap(maptype='PROBING',loadfactor=0.4, comparefunction=cmpids)
+    addTaxi(TaxiID, Millas, Total, value['Taxis'])
+    return value
+
+def newvalueT(TaxiID, Millas, Total):
+    value={'Taxi': TaxiID, 'Millas': Millas, 'Total': Total, 'Rides': 1}
+    return value
+
+# ==============================
+# Funciones de consulta
+# ==============================
 
 def TopCompanies(N, mapa, category):
     top={}
@@ -147,6 +216,65 @@ def TopCompanies(N, mapa, category):
                     info['Number']=number
                     verificar=False
                 i+=1
+    return top
+
+def bestTaxis(N, Date, analyzer):
+    Mapa=analyzer['infoDate']
+    entry=om.get(Mapa, Date)
+    if entry is not None:
+        value=me.getValue(entry)
+        Map=value['Taxis']
+        keys=m.keySet(Map)
+        iterator=it.newIterator(keys)
+        scores={}
+        while it.hasNext(iterator):
+            TaxiID=it.next(iterator)
+            entryT=m.get(Map, TaxiID)
+            value=me.getValue(entryT)
+            score=calculateScore(value)
+            scores[TaxiID]=score
+        top=bestNdic(N, scores)
+        return top
+    else:
+        return None
+
+def bestTaxisRange(N, Date1, Date2, analyzer):
+    Mapa=analyzer['infoDate']
+    keys=om.keys(Mapa, Date1, Date2)
+    print(keys)
+    iterator=it.newIterator(keys)
+    top={}
+    while it.hasNext(iterator):
+        Date=it.next(iterator)
+        entry=om.get(Mapa, Date)
+        value=me.getValue(entry)
+        Map=value['Taxis']
+        Taxis=m.keySet(Map)
+        iteratorT=it.newIterator(Taxis)
+        while it.hasNext(iteratorT):
+            taxi=it.next(iteratorT)
+            entry=m.get(Map, taxi)
+            value=me.getValue(entry)
+            milles=value['Millas']
+            total=value['Total']
+            rides=value['Rides']
+            if taxi not in top:
+                top[taxi]={}
+                info=top[taxi]
+                info['Millas']=milles
+                info['Total']=total
+                info['Rides']=rides
+            else:
+                info=top[taxi]
+                info['Millas']+=milles
+                info['Total']+=total
+                info['Rides']+=rides
+    print(top)
+    for taxi in top:
+        value=top[taxi]
+        score=calculateScore(value)
+        top[taxi]=score
+    top=bestNdic(N, top)
     return top
 
 def setride(A, B, hour1, hour2, graph):
@@ -186,9 +314,9 @@ def setride(A, B, hour1, hour2, graph):
     except:
         return None
 
-#======================
-#helper
-#======================
+# ==============================
+# Funciones Helper
+# ==============================
 
 def validartaxi(taxi, lst):
     if lt.isPresent(lst, taxi) == 0:
@@ -236,9 +364,39 @@ def maxdic(dic):
             higer['value']=dic[key]
     return higer
 
-#======================
-#cmpfunctions
-#======================
+def calculateScore(value):
+    miles=value['Millas']
+    total=value['Total']
+    ride=value['Rides']
+    score=miles/total
+    score=score*ride
+    return score
+
+def bestNdic(N, dic):
+    top={}
+    for i in range(1, N+1):
+        top[i]={'id':None, 'score':None}
+    for Id in dic:
+        score=dic[Id]
+        i=1
+        if top[i]['score'] == None:
+            for i in top:
+                top[i]['id']=Id
+                top[i]['score']=score
+        else:
+            verificar=True
+            while i in range(1,N+1) and verificar:
+                info=top[i]
+                if info['score'] < score:
+                    info['id']=Id
+                    info['score']=score
+                    verificar=False
+                i+=1
+    return top
+
+# ==============================
+# Funciones de Comparacion
+# ==============================
 
 def cmpids(id1,id2):
     id2=id2['key']
