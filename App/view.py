@@ -134,8 +134,11 @@ def optionfour():
                 print('\nLos mejores taxis para la fehca dada son: ')
                 i=1
                 for taxi in top:
-                    score=round(top[taxi],2)
-                    print( str(i) + ' El taxi: '+ taxi + ' puntuacion de :'+ str(score) )
+                    score=top[taxi]
+                    pts=round(score["score"],2)
+                    n_id=score["id"]
+                    print( str(i) + ' El taxi: '+ str(n_id) + ' puntuacion de :'+ str(pts) )
+                    i+=1
             else:
                 print('Verifique los datos dados.')
         elif option== '2':
@@ -157,8 +160,9 @@ def optionfour():
                 print('\nLos mejores taxis para la fehca dada son: ')
                 i=1
                 for taxi in top:
-                    score=round(top[taxi],2)
-                    print( str(i) + ' El taxi: '+ taxi + ' puntuacion de :'+ str(score) )
+                    score=top[taxi]
+                    print( str(i) + ' El taxi: '+ str(taxi) + ' puntuacion de :'+ str(score) )
+                    i+=1
             else:
                 print('Verifique los datos dados.')
 
